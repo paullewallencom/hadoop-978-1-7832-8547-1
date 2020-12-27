@@ -1,0 +1,45 @@
+// Using a custom name for backward compatibility
+jar.archiveName = "hcb-c7-samples.jar"
+
+repositories {
+	    mavenCentral()
+	    maven {url "http://repo.hortonworks.com/content/repositories/releases/"   }
+	    maven { url "https://repository.cloudera.com/artifactory/public/" }
+	    maven { url "http://repository.apache.org/snapshots" }
+	    maven { url "http://repo.maven.apache.org/maven2" }
+	    maven { url "http://conjars.org/repo" }
+	}
+
+
+dependencies {
+    compile group: 'org.apache.hbase', name: 'hbase-common', version: '0.98.+'
+    compile group: 'org.apache.hbase', name: 'hbase-client', version: '0.98.+'
+    compile group: 'org.apache.hbase', name: 'hbase-server', version: '0.98.+'
+}
+
+task executeHBaseClient (type:JavaExec, dependsOn: 'build') {
+    main = "chapter7.hbase.HBaseClient"
+    classpath = sourceSets.main.runtimeClasspath 
+    def execArgs = System.getProperty('exec.args') 
+	if(execArgs)    
+   		args = execArgs.split()
+}
+
+task executeHDIDataUpload (type:JavaExec, dependsOn: 'build') {
+    main = "chapter7.hbase.HDIDataUploader"
+    classpath = sourceSets.main.runtimeClasspath 
+    def execArgs = System.getProperty('exec.args') 
+	if(execArgs)    
+   		args = execArgs.split()
+}
+
+task uberjar(type: Jar) {
+    archiveName = "hcb-c7-samples-uber.jar"
+    from files(sourceSets.main.output.classesDir)
+    from {configurations.compile.collect {zipTree(it)}} {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}
+
